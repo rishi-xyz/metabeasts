@@ -12,13 +12,6 @@ const config: Phaser.Types.Core.GameConfig = {
     parent: 'game-container',
     backgroundColor: '#000000',
     pixelArt: true,
-    scene: [
-        Boot,
-        Preloader,
-        MainMenu,
-        MainGame,
-        GameOver
-    ],
     scale: {
         mode: Phaser.Scale.ScaleModes.RESIZE,
         width: window.innerWidth,
@@ -32,6 +25,11 @@ const config: Phaser.Types.Core.GameConfig = {
         },
     },
     autoFocus: true,
+    scene: [
+        Boot,
+        Preloader,
+        MainMenu
+    ],
 };
 
 const StartGame = (parent: string) => {

@@ -16,7 +16,10 @@ export class MainMenu extends Scene
 
     create ()
     {
-        this.background = this.add.image(512, 500, 'background');
+        // Make background take the whole screen
+        this.background = this.add.image(0, 0, 'background')
+            .setOrigin(0, 0)
+            .setDisplaySize(this.cameras.main.width, this.cameras.main.height);
 
         this.logo = this.add.image(512, 300, 'logo').setDepth(100);
 
