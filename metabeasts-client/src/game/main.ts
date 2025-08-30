@@ -9,23 +9,42 @@ import { Preloader } from './scenes/Preloader';
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
-    width: 1024,
-    height: 768,
     parent: 'game-container',
-    backgroundColor: '#028af8',
+    backgroundColor: '#000000',
+    pixelArt: true,
     scene: [
         Boot,
         Preloader,
         MainMenu,
         MainGame,
         GameOver
-    ]
+    ],
+    scale: {
+        mode: Phaser.Scale.ScaleModes.RESIZE,
+        width: window.innerWidth,
+        height: window.innerHeight,
+    },
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { x: 0, y: 0 },
+            debug: false,
+        },
+    },
+    autoFocus: true,
 };
 
 const StartGame = (parent: string) => {
-
+    // Optionally, set the parent container to take full screen
+    const parentElement = document.getElementById(parent);
+    if (parentElement) {
+        parentElement.style.width = '100vw';
+        parentElement.style.height = '100vh';
+        parentElement.style.margin = '0';
+        parentElement.style.padding = '0';
+        parentElement.style.overflow = 'hidden';
+    }
     return new Game({ ...config, parent });
-
 }
 
 export default StartGame;
