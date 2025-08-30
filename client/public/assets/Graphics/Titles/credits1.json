@@ -1,0 +1,16 @@
+{
+    "frames": {
+      "background": {
+        "frame": { "x": 0, "y": 0, "w": 512, "h": 384 },
+        "rotated": false,
+        "trimmed": false,
+        "spriteSourceSize": { "x": 0, "y": 0, "w": 512, "h": 384 },
+        "sourceSize": { "w": 512, "h": 384 }
+      }
+    },
+    "meta": {
+      "image": "credits1.png",
+      "size": { "w": 512, "h": 384 }
+    }
+  }
+  
