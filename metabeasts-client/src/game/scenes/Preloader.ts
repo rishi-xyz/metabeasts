@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { EventBus } from '../EventBus';
 
 export class Preloader extends Scene
 {
@@ -10,7 +11,9 @@ export class Preloader extends Scene
     ];
     private currentBackgroundIndex: number = 0;
     private backgroundImage: Phaser.GameObjects.Image;
-    private backgroundButton: Phaser.GameObjects.Text;
+    private backgroundButton: Phaser.GameObjects.Arc;
+    private refreshIcon: Phaser.GameObjects.Text;
+    private buttonPosition = { x: 50, y: 50 };
 
     constructor ()
     {
@@ -31,32 +34,21 @@ export class Preloader extends Scene
         this.backgroundImage = this.add.image(0, 0, 'background0');
         this.backgroundImage.setOrigin(0, 0);
         this.backgroundImage.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+        this.buttonPosition.x = 1860;
+        this.buttonPosition.y = 1010;
 
-        // Create a button to change backgrounds
-        this.backgroundButton = this.add.text(512, 600, 'Change Background', {
-            fontFamily: 'Arial Black',
+        // Create a circular button in bottom left to change backgrounds
+        this.backgroundButton = this.add.circle(this.buttonPosition.x, this.buttonPosition.y, 30, 0x4a90e2)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => this.changeBackground())
+            .on('pointerover', () => this.backgroundButton.setFillStyle(0x357abd))
+            .on('pointerout', () => this.backgroundButton.setFillStyle(0x4a90e2));
+
+        // Add a refresh icon or text inside the circle
+        this.refreshIcon = this.add.text(this.buttonPosition.x, this.buttonPosition.y, '🔄', {
             fontSize: 24,
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4,
-            backgroundColor: '#4a90e2',
-            padding: { x: 20, y: 10 }
-        })
-        .setOrigin(0.5)
-        .setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => this.changeBackground())
-        .on('pointerover', () => this.backgroundButton.setStyle({ backgroundColor: '#357abd' }))
-        .on('pointerout', () => this.backgroundButton.setStyle({ backgroundColor: '#4a90e2' }));
-
-        // Add a progress bar
-        this.add.rectangle(512, 384, 468, 32).setStrokeStyle(5, 0x000000);
-        const bar = this.add.rectangle(512-230, 384, 4, 28, 0xffffff);
-
-        // Use the 'progress' event emitted by the LoaderPlugin to update the loading bar
-        this.load.on('progress', (progress: number) => {
-            // Update the progress bar (our bar is 464px wide, so 100% = 464px)
-            bar.width = 4 + (460 * progress);
-        });
+            color: '#ffffff'
+        }).setOrigin(0.5);
     }
 
     private changeBackground()
@@ -81,22 +73,9 @@ export class Preloader extends Scene
 
     create ()
     {
-        // Add a continue button to move to MainMenu
-        const continueButton = this.add.text(512, 700, 'Continue to` Game', {
-            fontFamily: 'Arial Black',
-            fontSize: 28,
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4,
-            backgroundColor: '#28a745',
-            padding: { x: 25, y: 15 }
-        })
-        .setOrigin(0.5)
-        .setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => this.scene.start('MainMenu'))
-        .on('pointerover', () => continueButton.setStyle({ backgroundColor: '#218838' }))
-        .on('pointerout', () => continueButton.setStyle({ backgroundColor: '#28a745' }));
-
+        // Emit event to show the React LobbySelector component
+        EventBus.emit('show-lobby-selector', this);
+        
         // When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
         // For example, you can define global animations here, so we can use them in other scenes.
     }

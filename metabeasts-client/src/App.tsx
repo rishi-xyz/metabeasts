@@ -1,15 +1,57 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { IRefPhaserGame, PhaserGame } from './PhaserGame';
 import { MainMenu } from './game/scenes/MainMenu';
+import { LobbySelector } from './components/LobbySelector';
+import { EventBus } from './game/EventBus';
+import './components/LobbySelector.css';
 
 function App()
 {
     // The sprite can only be moved in the MainMenu Scene
     const [canMoveSprite, setCanMoveSprite] = useState(true);
+    const [showLobbySelector, setShowLobbySelector] = useState(false);
 
     //  References to the PhaserGame component (game and scene are exposed)
     const phaserRef = useRef<IRefPhaserGame | null>(null);
     const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        // Listen for events from Phaser scenes
+        const handleShowLobbySelector = () => {
+            setShowLobbySelector(true);
+        };
+
+        const handleCurrentSceneReady = () => {
+            setShowLobbySelector(false);
+        };
+
+        EventBus.on('show-lobby-selector', handleShowLobbySelector);
+        EventBus.on('current-scene-ready', handleCurrentSceneReady);
+
+        return () => {
+            EventBus.off('show-lobby-selector', handleShowLobbySelector);
+            EventBus.off('current-scene-ready', handleCurrentSceneReady);
+        };
+    }, []);
+
+    const handleLobbyCreated = (lobbyType: 'public' | 'private', playerName: string) => {
+        console.log(`Creating ${lobbyType} lobby for player: ${playerName}`);
+        
+        // Hide the lobby selector
+        setShowLobbySelector(false);
+        
+        // Start the MainMenu scene with the player info
+        if (phaserRef.current) {
+            const scene = phaserRef.current.scene;
+            if (scene && scene.scene.key === 'Preloader') {
+                // Store player info in scene data for MainMenu to use
+                scene.scene.start('MainMenu', { 
+                    lobbyType, 
+                    playerName 
+                });
+            }
+        }
+    };
 
     const changeScene = () => {
 
@@ -83,6 +125,11 @@ function App()
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+            
+            {/* Overlay the LobbySelector when needed */}
+            {showLobbySelector && (
+                <LobbySelector onLobbyCreated={handleLobbyCreated} />
+            )}
         </div>
     )
 }
